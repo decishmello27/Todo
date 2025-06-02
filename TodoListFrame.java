@@ -33,25 +33,22 @@ public class TodoListFrame extends JFrame {
         loadButton = new JButton("Načíst");
         showCompletedCheckBox = new JCheckBox("Zobrazit splněné úkoly");
 
-        // Přidání posluchačů událostí
         addButton.addActionListener(e -> addTask());
         removeButton.addActionListener(e -> removeTask());
         saveButton.addActionListener(e -> saveTasks());
         loadButton.addActionListener(e -> loadTasks());
         showCompletedCheckBox.addActionListener(e -> refreshTaskListDisplay());
 
-        // Posluchač pro kliknutí na checkbox v listu
         taskList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int index = taskList.locationToIndex(e.getPoint());
                 if (index != -1) {
                     Rectangle rect = taskList.getCellBounds(index, index);
-                    // Odhadneme oblast, kde je checkbox (prvních 20 pixelů zleva)
                     if (rect != null && e.getX() < rect.x + 20) {
                         Task task = taskListModel.getElementAt(index);
-                        task.setDone(!task.isDone()); // Přepni stav splnění
-                        refreshTaskListDisplay(); // Obnov zobrazení
+                        task.setDone(!task.isDone());
+                        refreshTaskListDisplay();
                     }
                 }
             }
@@ -69,8 +66,6 @@ public class TodoListFrame extends JFrame {
 
         add(scrollPane, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
-        
-        // Načíst úkoly při spuštění, pokud existují
         loadTasks(); 
     }
 
@@ -135,20 +130,17 @@ public class TodoListFrame extends JFrame {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("tasks.dat"))) {
             loadedTasks = (ArrayList<Task>) ois.readObject();
         } catch (FileNotFoundException ex) {
-            // Soubor ještě neexistuje, to je v pořádku při prvním spuštění
-            // Nebudeme zobrazovat chybovou zprávu, jen necháme loadedTasks prázdný
         } catch (IOException | ClassNotFoundException ex) {
-            // Zde zobrazíme chybu, pokud je problém s načítáním souboru (např. poškozený soubor)
             JOptionPane.showMessageDialog(this, "Chyba při načítání souboru úkolů: " + ex.getMessage());
         }
         
-        // Zde je klíčová změna: přidáme načtené úkoly do allTasks, ale nejdříve zkontrolujeme duplicity
+
         for (Task loadedTask : loadedTasks) {
-            if (!allTasks.contains(loadedTask)) { // Přidáme úkol jen pokud už v seznamu není
+            if (!allTasks.contains(loadedTask)) {
                 allTasks.add(loadedTask);
             }
         }
-        sortAndRefreshTasks(); // Seřadit a obnovit zobrazení
+        sortAndRefreshTasks();
     }
     
     private void refreshTaskListDisplay() {
